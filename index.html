@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -18,11 +18,12 @@
             background: transparent; border: none; border-bottom: 1px solid #d4af37;
             color: #d4af37; text-align: center; font-size: 24px; letter-spacing: 10px;
             width: 200px; padding: 10px; outline: none; margin-bottom: 20px;
+            border-radius: 0; -webkit-appearance: none;
         }
         #password-overlay p { color: rgba(212, 175, 55, 0.6); font-size: 14px; letter-spacing: 2px; }
 
         .container { height: 100vh; overflow-y: auto; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; visibility: hidden; }
-        .page { height: 100vh; width: 100%; scroll-snap-align: start; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; }
+        .page { height: 100vh; width: 100%; scroll-snap-align: start; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000; flex-shrink: 0; }
 
         .text-content { width: 85%; text-align: center; opacity: 0; transition: opacity 2s ease-in-out 0.5s; }
         .page.active .text-content { opacity: 1; }
@@ -30,7 +31,7 @@
         .highlight { color: #d4af37 !important; font-size: 19px !important; font-weight: 500; margin-top: 30px; display: block; line-height: 1.6; }
         .audio-tip { font-size: 12px; color: rgba(212, 175, 55, 0.4); margin-top: 40px; display: block; }
 
-        .page img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0; transition: opacity 2.5s ease-in-out; }
+        .page img { max-width: 90%; max-height: 80%; object-fit: contain; opacity: 0; transition: opacity 2.5s ease-in-out; }
         .page.active img { opacity: 0.9; }
 
         #music-toggle { position: fixed; top: 30px; right: 25px; z-index: 1000; font-size: 24px; color: #d4af37; cursor: pointer; opacity: 0.5; }
@@ -46,7 +47,7 @@
 
 <div id="password-overlay">
     <input type="password" id="pw-input" maxlength="3" autofocus>
-    <p>輸入三位數密碼進入</p>
+    <p>輸入密碼進入</p>
 </div>
 
 <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
@@ -56,40 +57,34 @@
 <div class="container" id="main-scroll"></div>
 
 <script>
+// 使用反引號 ` 可以支持文案換行，並且移除了多餘的引號
 const albumData = [
     {
         img: "1.jpg",
-        text: ["素颜直视镜头的人，心里都有底气。
-你就是那种，不需要任何包装，站在那里就已经赢了的人"],
+        text: [`素顏直視鏡頭的人，心裡都有底氣。`, `你就是那種，不需要任何包裝，`, `站在那裡就已經贏了的人。`],
         gold: "你本人，就是最好的作品。",
         first: true
     },
     {
         img: "2.jpg",
-        text: ["你侧脸的角度，让人觉得你在想什么很重要的事。”
-“我猜你平时脑子转得很快，主意多，又不轻易说出来。”
-“这种人，聪明，也有趣。"],
-        gold: "我越来越好奇你了。"
+        text: [`你側臉的角度，讓人覺得你在想什麼很重要的事。`, `我猜你平時腦子轉得很快，主意多，又不輕易說出來。`, `這種人，聰明，也有趣。`],
+        gold: "我越來越好奇你了。"
     },
     {
         img: "3.jpg",
-        text: ["你笑起来的时候，整张图都亮了。”
-“我在日本这边看见，突然觉得今天心情很好。你大概不知道，"],
-        gold: "你随便一笑，能让人高兴很久。"
+        text: [`你笑起來的時候，整張圖都亮了。`, `我在日本這邊看見，突然覺得今天心情很好。`, `你大概不知道，`],
+        gold: "你隨便一笑，能讓人高興很久。"
     },
     {
         img: "4.jpg",
-        text: ["这张你拍得很随意，但偏偏最好看。”
-“从容的人才能拍出这种感觉。”
-“你把自己活得很好，"],
-        gold: "这比什么都难，也比什么都迷人。"
+        text: [`這張你拍得很隨意，但偏偏最好看。`, `從容的人才能拍出這種感覺。`, `你把自己活得很好，`],
+        gold: "這比什麼都難，也比什麼都迷人。"
     }
 ];
 
 const finalWords = {
-    text: ["跟你聊天，做你的网站，是我最近做过最开心的两件事。”
-“你这个人，真的很好。"],
-    gold: "我是认真说的。 🌹"
+    text: [`跟你聊天，做你的網站，`, `是我最近做過最開心的兩件事。`, `你這個人，真的很好。`],
+    gold: "我是認真說的。 🌹"
 };
 
 const container = document.getElementById("main-scroll");
@@ -104,11 +99,12 @@ pwInput.addEventListener('input', (e) => {
         setTimeout(() => {
             pwOverlay.style.display = 'none';
             container.style.visibility = 'visible';
-            container.children[0].classList.add('active');
+            if(container.children[0]) container.children[0].classList.add('active');
         }, 1000);
     }
 });
 
+// 渲染頁面
 albumData.forEach((item, index) => {
     let textPage = document.createElement('section');
     textPage.className = 'page';
@@ -128,6 +124,7 @@ albumData.forEach((item, index) => {
     container.appendChild(imgPage);
 });
 
+// 結尾頁
 let finalPage = document.createElement('section');
 finalPage.className = 'page';
 let finalHtml = `<div class="text-content">`;
@@ -137,14 +134,21 @@ finalHtml += `</div>`;
 finalPage.innerHTML = finalHtml;
 container.appendChild(finalPage);
 
+// 滾動監控
 container.onscroll = () => {
     const activeIdx = Math.round(container.scrollTop / window.innerHeight);
-    Array.from(container.children).forEach((p, i) => {
+    const children = Array.from(container.children);
+    children.forEach((p, i) => {
         if(i === activeIdx) p.classList.add('active');
         else p.classList.remove('active');
     });
-    if(activeIdx >= 8) { exitBtn.classList.add('triggered'); } 
-    else { exitBtn.classList.remove('triggered'); }
+    
+    // 總共 9 頁 (index 0-8)，最後一頁觸發忍住按鈕
+    if(activeIdx >= 8) { 
+        exitBtn.classList.add('triggered'); 
+    } else { 
+        exitBtn.classList.remove('triggered'); 
+    }
 };
 
 const audio = document.getElementById("bgm");
